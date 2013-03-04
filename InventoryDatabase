@@ -1,0 +1,255 @@
+//
+//  main.cpp
+//  None
+//
+//  Created by Prat Fall on 3/2/13.
+//  
+//
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <fstream>
+
+using namespace std;
+
+
+struct Date
+{
+        int month,
+            day,
+            year;
+};//Struct Date
+
+class Item
+{
+private:
+    string name, description;
+    int quantity;
+    float retail,
+        wholesale;
+    Date added;
+public:
+    bool operator < ( const Item S) const  {return S.name > name;}
+    string line;
+    int num;
+    float floater;
+    string getName() {return name;}
+    void setName(string line) { name = line;}
+    string getDescription() {return description;}
+    void setDescription(string line) {description = line;}
+    int getQuantity() {return quantity;}
+    void setQuantity(int num) {quantity = num;}
+    float getRetail(){return retail;}
+    void setRetail(float floater){retail = floater;}
+    float getWholesale(){return wholesale;}
+    void setWholesale(float floater){wholesale = floater;}
+    int getMonth(){return added.month;}
+    void setMonth(int num) {added.month = num;}
+    int getDay(){return added.day;}
+    void setDay(int num) {added.day = num;}
+    int getYear(){return added.year;}
+    void setYear(int num) {added.year = num;}
+    
+
+};//Class Item
+
+void setup(vector<Item> &Inventory);
+void finish(vector<Item> &Inventory);
+void ClearScreen();
+string setVariable(string variable);
+float setVariable(string variable, float min);
+int setVariable(string variable, int min, long long int max);
+Item addItem();
+int displayNames(vector<Item> &Items);
+void displayItem(Item product);
+
+
+
+int main(int argc, const char * argv[])
+{
+    vector<Item> Inventory;
+    bool truth = true;
+    int choice, x;
+    setup(Inventory);
+    while(truth)
+    {
+        do
+        {
+            cin.clear();
+            cout << "Please select an option from the following:\n";
+            cout << "(1) Add to inventory\n(2) Display item from inventory\n";
+            cout << "(3) Edit item in inventory\n(4) Exit\n>>";
+            
+            
+        }while(!(cin >> choice));
+        switch(choice){
+            case 1: {Inventory.push_back(addItem());
+                sort(Inventory.begin(), Inventory.end());break;}
+            case 2: {
+                cout << "Please select from the following items:" << endl;
+                for(x = 0; x < Inventory.size(); x++)
+                    {cout << x << ") " << Inventory[x].getName() << endl;}
+                do{cin >> choice;}while(choice > Inventory.size() || choice < 1);
+                displayItem(Inventory[choice]);
+                break;}
+            case 3: {cout << "Unfinished\n"; break;}
+            case 4: {finish(Inventory);truth = false;}
+        }
+    }
+    return 0;
+}
+
+void setup(vector<Item> &Inventory)
+{
+    ifstream file;
+    string line;
+    int integer;
+    float floater;
+    Item product;
+    file.open("InventoryDatabase.txt");
+    if(file.is_open())
+    {
+       
+        for(int x = 0;!(file.eof()); x++)
+        {
+            
+            getline(file, line);
+            if(line == "") {break;}
+            Inventory.push_back(product);
+            cout << line << endl;
+            Inventory[x].setName(line);
+            getline(file, line);
+            Inventory[x].setDescription(line);
+            file >> integer;
+            Inventory[x].setQuantity(integer);
+            file >> floater;
+            Inventory[x].setRetail(floater);
+            file >> floater;
+            Inventory[x].setWholesale(floater);
+            file >> integer;
+            Inventory[x].setMonth(integer);
+            file >> integer;
+            Inventory[x].setDay(integer);
+            file >> integer;
+            Inventory[x].setYear(integer);
+            cout << "Finished reading item " << x << endl;
+            getline(file, line);//Finish off line to move on to new item            
+        }//While has not reached end of file
+        file.close();
+    }//if file opens properly(file exists)
+}//Reads data from text document into the vector upon startup
+
+
+//Updates Inventory Database file with newly added items upon exit of the program
+void finish(vector<Item> &Inventory)
+{
+    ofstream file;
+    file.open("InventoryDatabase.txt");
+    if(file.is_open())
+    {
+        cout <<"The file is open!" << endl;
+        for(int x = 0; x < Inventory.size(); x++)
+        {
+            file << Inventory[x].getName() << endl;
+            file << Inventory[x].getDescription() << endl;
+            file << Inventory[x].getQuantity() << " " << Inventory[x].getRetail() << " ";
+            file << Inventory[x].getWholesale() << " " << Inventory[x].getMonth() << " ";
+            file << Inventory[x].getDay() << " " << Inventory[x].getYear() << endl;
+        }
+    }//if file opens properly(file exists)
+    file.close();
+    cout << "The file has been closed!" << endl;
+}
+void ClearScreen()
+{
+    cout << string( 100, '\n' );
+}
+
+
+string setVariable(string variable)
+{
+    string words;
+    do{
+        ClearScreen();
+        cin.clear();
+        cout << variable << ":  ";
+        getline(cin, words);
+        
+    }while((words == "") || (words[0] == ' ') );
+    return  words;
+}
+
+float setVariable(string variable, float min)
+{
+    float number;
+    do{
+        ClearScreen();
+        cin.clear();
+        cin.ignore();
+        cout << variable << ":  ";
+    }while(!(cin >> number) || (number < min));
+    return number;
+
+}
+int setVariable(string variable, int min, long long int max)
+{
+    int number;
+    do{
+        ClearScreen();
+        cin.clear();
+        cin.ignore();
+        cout << variable << ":  ";
+        }while(!(cin >> number) || (number < min) || (number > max));
+        return number;
+        
+        }
+Item addItem()
+{
+    Item product;
+    int choice;
+  
+    cout <<"Please enter in each bit of information\n";
+    cin.ignore();
+    product.setName(setVariable("Product Name"));
+    product.setDescription(setVariable("Product Description"));
+    product.setQuantity(setVariable("Product Quantity", 0, 100000000));
+    product.setRetail(setVariable("Retail Cost", .01));
+    product.setWholesale(setVariable("Wholesale Cost", .01));
+    product.setMonth(setVariable("Month Product Was Added To Inventory", 1, 12));
+    product.setDay(setVariable("Day Product Was Added To Inventory", 1, 31));
+    product.setYear(setVariable("Year Product Was Added To Inventory",1900,2013));
+    ClearScreen();
+    displayItem( product);
+    cout << "Is this (1)correct or (2) would you like to edit it" << endl;
+    cin >> choice;
+    return product;
+    
+}
+
+int displayNames(vector<Item> &Items)
+{
+  int number;
+	for(unsigned int x = 0; x < Items.size(); x++)
+	{
+		cout << x + 1 << ") " << Items[x].getName() << endl;
+	}
+	cout << "Please select an item" << endl << ">> ";
+	cin >> number;
+	return number - 1;
+}
+
+void displayItem(Item product)
+{
+    for(int x = 0; x < 40; x++) {cout << "_";}
+    cout << endl << setw(20) << left << "Name:" << product.getName() << endl;
+    cout << setw(20)  << "Description:" << product.getDescription() << endl;
+    cout << setw(20)  << "Quantity:" << product.getQuantity() << endl;
+    cout << setw(20)  << "Retail Cost:" << product.getRetail() << endl;
+    cout << setw(20)  << "Wholesale Cost:" << product.getWholesale() << endl;
+    cout << setw(20)  << "Date Added:" << product.getMonth() << "/";
+    cout << product.getDay() << "/" << product.getYear() << endl;
+    
+}
+
